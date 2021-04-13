@@ -1,1 +1,1 @@
-from fivem-wrapper.Server import *
+from fivempy.Server import *
