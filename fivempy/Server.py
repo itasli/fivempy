@@ -5,31 +5,11 @@ class Server:
     def __init__(self, ip):
         self.ip = ip
 
-        
-        self.player_count = 0
-        self.player_list = []
-        self.player_max = 0
-        
-        
-        self.info = {}
-        self.players = {}
-        self.dynamic = {}
-
-    def initialize(self):
-        self.get_info()
-        self.get_players()
-        self.get_dynamic()
-        
-        self.get_player_count()
-        self.get_player_list()
-        self.get_player_max()
-
     def get_info(self):
         try:
             r = requests.get(f'http://{self.ip}/info.json')
             r.raise_for_status()
-            self.info = r.json()
-            return self.info
+            return r.json()
         except:
             return('Server is offline or incorrect IP')
     
@@ -37,8 +17,7 @@ class Server:
         try:
             r = requests.get(f'http://{self.ip}/players.json')
             r.raise_for_status()
-            self.players = r.json()
-            return self.players
+            return r.json()
         except:
             return('Server is offline or incorrect IP')
 
@@ -46,8 +25,7 @@ class Server:
         try:
             r = requests.get(f'http://{self.ip}/dynamic.json')
             r.raise_for_status()
-            self.dynamic = r.json()
-            return self.dynamic
+            return r.json()
         except:
             return('Server is offline or incorrect IP')
 
@@ -56,29 +34,25 @@ class Server:
         try:
             r = requests.get(f'http://{self.ip}/players.json')
             r.raise_for_status()
-            self.player_count = len(r.json())
-            return self.player_count
+            return len(r.json())
         except:
             try:
                 r = requests.get(f'http://{self.ip}/dynamic.json')
                 r.raise_for_status()
-                self.player_count = r.json().get('clients')
-                return self.player_count
+                return r.json().get('clients')
             except:
                 return('Server is offline or incorrect IP')
 
-    def get_player_max(self):
+    def get_max_player(self):
         try:
             r = requests.get(f'http://{self.ip}/info.json')
             r.raise_for_status()
-            self.player_max = r.json().get('vars').get('sv_maxClients')
-            return self.player_max
+            return r.json().get('vars').get('sv_maxClients')
         except:
             try:
                 r = requests.get(f'http://{self.ip}/dynamic.json')
                 r.raise_for_status()
-                self.player_max = r.json().get('sv_maxclients')
-                return self.player_max
+                return r.json().get('sv_maxclients')
             except:
                 return('Server is offline or incorrect IP')
     
@@ -93,3 +67,59 @@ class Server:
             return self.player_list
         except:
             return('Server is offline or incorrect IP')
+    
+    def get_hostname(self):
+        try:
+            r = requests.get(f'http://{self.ip}/dynamic.json')
+            r.raise_for_status()
+            return r.json().get('hostname')
+        except:
+            try:
+                r = requests.get(f'http://{self.ip}/info.json')
+                r.raise_for_status()
+                return r.json().get('vars').get('sv_projectName')
+            except:
+                return('Server is offline or incorrect IP')
+    
+    def get_ressource_list(self):
+        try:
+            r = requests.get(f'http://{self.ip}/info.json')
+            r.raise_for_status()
+            return r.json().get('resources')
+        except:
+            return('Server is offline or incorrect IP')
+
+class Fivem:
+
+    def __init__(self):
+        try:
+            r = requests.get('https://status.cfx.re/api/v2/summary.json')
+            r.raise_for_status()
+            r = r.json()
+
+            self.status = r['status']
+
+            # Game services
+            self.cnl_status = r['components'][1]
+            self.policy_status = r['components'][3]
+            self.keymaster_status = r['components'][6]
+
+            # Web services
+            self.forum_status = r['components'][0]
+            self.serverlist_status = r['components'][4]
+            self.runtime_status = r['components'][7]
+            return('Fetched all data')
+        except:
+            return('FiveM status page is offline !')
+
+    def update(self):
+        try:
+            r = requests.get('https://status.cfx.re/api/v2/summary.json')
+            r.raise_for_status()
+            r = r.json()
+
+            if r['status']['indicator'] != "none":
+                self.initialize()
+            return('Successfully updated')
+        except:
+            return('FiveM status page is offline !')

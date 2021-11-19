@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="fivempy",
-    version="0.1",
+    version="0.2.5",
     author="itasli",
     author_email="ilyas.tasli@outlook.com",
     description="A python wrapper for FiveM",
